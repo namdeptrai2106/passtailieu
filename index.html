@@ -22,13 +22,13 @@
     .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px}
     .logo{width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#60a5fa,#34d399); display:inline-grid; place-items:center; color:#fff; font-weight:900}
     .nav-ctas{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap}
-    .btn{appearance:none; border:1px solid var(--bd); background:#fff; color:#111; padding:8px 12px; border-radius:10px; font-weight:600; text-decoration:none; transition:.15s; box-shadow:0 1px 0 rgba(0,0,0,.02)}
+    .btn{appearance:none; border:1px solid var(--bd); background:#fff; color:#111; padding:8px 12px; border-radius:10px; font-weight:600; text-decoration:none; transition:.15s; box-shadow:0 1px 0 rgba(0,0,0,.02); cursor:pointer}
     .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
     .btn.primary{background:var(--primary); color:#fff; border-color:transparent}
 
-    .intro{display:grid; grid-template-columns:1.25fr .75fr; gap:16px; margin:18px 0 10px}
+    /* Intro: luôn 1 cột để đồng bộ chiều rộng với các card khác */
+    .intro{display:grid; grid-template-columns:1fr; gap:16px; margin:18px 0 10px}
     .intro .card{padding:16px 18px}
-    @media (max-width:920px){.intro{grid-template-columns:1fr}}
 
     .card{background:var(--card); border:1px solid var(--bd); border-radius:16px; box-shadow:var(--shadow)}
     .card h2{margin:0 0 8px; font-size:18px}
@@ -66,7 +66,8 @@
     .pill{background:var(--hl-subject); border-radius:6px; padding:2px 6px; font-weight:700}
     .price{background:var(--hl-price); border-radius:6px; padding:2px 6px; font-weight:800}
     .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px}
-    .copy{border:1px dashed var(--bd); background:var(--subtle); padding:6px 10px; border-radius:10px; cursor:pointer}
+
+    .contact-click{display:inline-block; padding:6px 10px; border-radius:10px; background:var(--subtle); border:1px dashed var(--bd); cursor:pointer}
 
     .skeleton{background:linear-gradient(90deg,#f4f4f5 25%,#f1f5f9 37%,#f4f4f5 63%); background-size:400% 100%; animation:shimmer 1.2s infinite}
     @keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
@@ -77,6 +78,19 @@
 
     footer{margin-top:28px; color:var(--muted); font-size:14px}
     .help-links{display:flex; gap:8px; flex-wrap:wrap}
+
+    /* Toast */
+    .toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#111; color:#fff; padding:10px 14px; border-radius:12px; font-weight:700; opacity:0; pointer-events:none; transition:.25s; z-index:1000}
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
+
+    /* Modal ảnh */
+    .modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:999}
+    .modal{background:#fff; width:min(920px,92vw); max-height:90vh; border-radius:14px; overflow:hidden; border:1px solid var(--bd); box-shadow:var(--shadow)}
+    .modal-header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--bd)}
+    .modal-body{padding:10px 14px}
+    .modal img{max-width:100%; height:auto; display:block; margin:0 auto; border-radius:8px}
+    .thumbs{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .thumbs img{width:90px; height:70px; object-fit:cover; border:1px solid var(--bd); border-radius:8px; cursor:pointer}
   </style>
 </head>
 <body>
@@ -132,15 +146,18 @@
       <div id="results" class="grid" aria-live="polite"></div>
     </section>
 
-    <!-- EMBEDDED REMOVE-POST FORM -->
+    <!-- REPLACE IFRAME FORM BY INPUT -->
     <section id="form-go-bai" class="card" style="padding:12px 14px; margin-top:12px">
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
-        <h2 style="margin:0">Form gỡ bài</h2>
-        <a class="btn" href="https://forms.gle/yW7sUneTzoKXR8w5A" target="_blank" rel="noopener" style="margin-left:auto">Mở tab mới</a>
+        <h2 style="margin:0">Gỡ bài đã đăng</h2>
+        <a class="btn" href="https://forms.gle/yW7sUneTzoKXR8w5A" target="_blank" rel="noopener" style="margin-left:auto">Mở Google Form</a>
       </div>
-      <div class="muted" style="margin-bottom:8px">Điền biểu mẫu dưới đây để yêu cầu gỡ bài đã đăng.</div>
-      <iframe src="https://forms.gle/yW7sUneTzoKXR8w5A" width="100%" height="740" frameborder="0" marginheight="0" marginwidth="0" loading="lazy">Đang tải…</iframe>
-      <div class="muted" style="margin-top:6px">Nếu form không hiển thị, bấm “Mở tab mới”.</div>
+      <div class="muted" style="margin-bottom:8px">Nhập <strong>Mã đơn hàng</strong> và bấm Gửi. Hệ thống sẽ chuyển yêu cầu đến Google Form.</div>
+      <form id="removeForm" style="display:flex; gap:8px; flex-wrap:wrap">
+        <input id="orderCode" class="input" placeholder="Nhập mã đơn hàng (ví dụ: ABC123...)" aria-label="Mã đơn hàng" required />
+        <button class="btn primary" type="submit">Gửi yêu cầu gỡ</button>
+      </form>
+      <div id="removeHint" class="muted" style="margin-top:6px"></div>
     </section>
 
     <template id="tpl-skeleton">
@@ -158,9 +175,27 @@
     <div class="state muted">Nguồn dữ liệu được đồng bộ từ Google Sheets (chế độ chỉ đọc).</div>
   </footer>
 
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite">Đã sao chép</div>
+
+  <!-- Modal xem ảnh -->
+  <div id="imgBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Xem hình ảnh">
+      <div class="modal-header">
+        <strong>Hình ảnh tài liệu</strong>
+        <button id="imgClose" class="btn" type="button">Đóng</button>
+      </div>
+      <div class="modal-body">
+        <img id="imgMain" src="" alt="Ảnh tài liệu" />
+        <div id="imgThumbs" class="thumbs"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
   const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRL7VwTAlQldOBxOR3arotJCVv2fWLmoB3Hr6WslMdS2z_8iHM5jBnp-nK0Wvf5Ko90TLCuxgxoLihT/pub?gid=759690707&single=true&output=csv";
-  const COL = { ts:0, email:1, name:2, subject:3, contact:4, price:5, note:6 };
+  // Thêm cột hình ảnh (index 7)
+  const COL = { ts:0, email:1, name:2, subject:3, contact:4, price:5, note:6, img:7 };
 
   const $ = sel => document.querySelector(sel);
   const resultsEl = $('#results');
@@ -172,10 +207,22 @@
   const activeFilters = $('#activeFilters');
   const subjectsGrid = $('#subjectsGrid');
   const clearSubjectBtn = $('#clearSubject');
+  const toast = $('#toast');
+
+  // Modal elements
+  const imgBackdrop = $('#imgBackdrop');
+  const imgClose = $('#imgClose');
+  const imgMain = $('#imgMain');
+  const imgThumbs = $('#imgThumbs');
+
+  // Remove form elements
+  const removeForm = $('#removeForm');
+  const orderCode = $('#orderCode');
+  const removeHint = $('#removeHint');
 
   let RAW = [];
   let SUBJECTS = new Set();
-  let selectedSubjects = new Set(); // used by chips search also
+  let selectedSubjects = new Set();
 
   const getCell = (r,i) => (i>=0 && i<r.length ? r[i] : '');
   const escapeHTML = s => (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
@@ -184,19 +231,27 @@
   const formatPrice = v => Number.isFinite(v) ? v.toLocaleString('vi-VN') + ' ₫' : (v||'');
   const debounce = (fn, ms=180) => { let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); } };
 
+  const FORM_ID = "1FAIpQLSdDce5ifEQTiHhRbFzx1SLAqtyOCuBA6-6cygfqRp3JLF6lDA";
+  const ENTRY_ID = "entry.315304563";
+
   function parseCSV(text){
     const rows=[]; let row=[]; let cur=''; let inQ=false;
     for(let i=0;i<text.length;i++){
-        const c=text[i], n=text[i+1];
-        if(inQ){ if(c==='"'){ if(n==='"'){cur+='"'; i++;} else inQ=false; } else cur+=c; }
-        else{
-          if(c==='"') inQ=true; else if(c===','){ row.push(cur); cur=''; }
-          else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
-          else if(c==='\r'){} else cur+=c;
-        }
+      const c=text[i], n=text[i+1];
+      if(inQ){ if(c==='"'){ if(n==='"'){cur+='"'; i++;} else inQ=false; } else cur+=c; }
+      else{
+        if(c==='"') inQ=true; else if(c===','){ row.push(cur); cur=''; }
+        else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+        else if(c==='\r'){} else cur+=c;
+      }
     }
     row.push(cur); rows.push(row);
     return rows.filter(r => r.some(cell => (cell||'').trim()!==''));
+  }
+
+  function parseImages(s){
+    const raw = (s||'').split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+    return raw;
   }
 
   function mapRow(r){
@@ -211,21 +266,58 @@
       contact: getCell(r, COL.contact),
       priceRaw: rawPrice,
       price: Number.isFinite(priceNum) ? priceNum : null,
-      note: getCell(r, COL.note)
+      note: getCell(r, COL.note),
+      images: parseImages(getCell(r, COL.img))
     };
   }
 
-  function formatContact(s){
+  function formatContactHTML(s){
     const raw=s||'';
     const email=raw.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
     const phone=raw.match(/(\+?\d[\d\s().-]{6,}\d)/);
     const parts=[];
-    if(email) parts.push(`<a href=\"mailto:${email[0]}\">${escapeHTML(email[0])}</a>`);
-    if(phone) parts.push(`<a href=\"tel:${phone[0].replace(/[^\d+]/g,'')}\">${escapeHTML(phone[0])}</a>`);
+    if(email) parts.push(`<a href="mailto:${email[0]}">${escapeHTML(email[0])}</a>`);
+    if(phone) parts.push(`<a href="tel:${phone[0].replace(/[^\d+]/g,'')}">${escapeHTML(phone[0])}</a>`);
     if(!parts.length) return escapeHTML(raw);
     const extra=raw.replace(email?.[0]||'','').replace(phone?.[0]||'','').trim();
-    return parts.join(' · ') + (extra?` <span class=\"muted\">${escapeHTML(extra)}</span>`:'');
+    return parts.join(' · ') + (extra?` <span class="muted">${escapeHTML(extra)}</span>`:'');
   }
+
+  function showToast(msg="Đã sao chép"){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'), 1400);
+  }
+
+  function copyTextSilently(text){
+    if(!text) return;
+    navigator.clipboard.writeText(text).then(()=>showToast("Đã sao chép")).catch(()=>showToast("Không thể sao chép"));
+  }
+
+  function openImagesViewer(urls){
+    if(!urls || !urls.length) return;
+    imgBackdrop.style.display = 'flex';
+    imgBackdrop.setAttribute('aria-hidden','false');
+    // set main
+    imgMain.src = urls[0];
+    // thumbs
+    imgThumbs.innerHTML = '';
+    urls.forEach(u=>{
+      const im = document.createElement('img');
+      im.src = u;
+      im.alt = 'thumb';
+      im.addEventListener('click', ()=>{ imgMain.src = u; });
+      imgThumbs.appendChild(im);
+    });
+  }
+  function closeImagesViewer(){
+    imgBackdrop.style.display = 'none';
+    imgBackdrop.setAttribute('aria-hidden','true');
+    imgMain.src = '';
+    imgThumbs.innerHTML = '';
+  }
+  imgClose.addEventListener('click', closeImagesViewer);
+  imgBackdrop.addEventListener('click', (e)=>{ if(e.target === imgBackdrop) closeImagesViewer(); });
 
   function renderSkeleton(n=8){
     resultsEl.className = 'grid';
@@ -244,8 +336,8 @@
       btn.textContent = sub;
       btn.addEventListener('click', ()=>{
         const key = sub.toLowerCase();
-        selectedSubjects = new Set([key]); // chọn duy nhất 1 chip để đồng bộ với folder
-        qSubject.value = sub; // đẩy vào input để người dùng thấy
+        selectedSubjects = new Set([key]);
+        qSubject.value = sub;
         render();
         document.getElementById('danh-sach').scrollIntoView({behavior:'smooth'});
       });
@@ -253,7 +345,6 @@
     });
   }
 
-  // Build SUBJECT FOLDERS (like directories)
   function buildSubjectFolders(index){
     subjectsGrid.innerHTML = '';
     const entries = Object.entries(index).sort((a,b)=> a[1].name.localeCompare(b[1].name,'vi',{sensitivity:'base'}));
@@ -261,10 +352,10 @@
       const el = document.createElement('button');
       el.type = 'button';
       el.className = 'folder';
-      el.innerHTML = `<span class=\"icon\">📁</span><span class=\"name\">${escapeHTML(info.name)}</span><span class=\"count\">${info.count}</span>`;
+      el.innerHTML = `<span class="icon">📁</span><span class="name">${escapeHTML(info.name)}</span><span class="count">${info.count}</span>`;
       el.addEventListener('click', ()=>{
         selectedSubjects = new Set([key]);
-        qSubject.value = info.name; // hiển thị lại đúng chữ hoa/thường bản gốc
+        qSubject.value = info.name;
         render();
         document.getElementById('danh-sach').scrollIntoView({behavior:'smooth'});
       });
@@ -275,7 +366,6 @@
   function applyFilters(data){
     const nameTerm = (qName.value||'').toLowerCase().trim();
     const subjectTerm = (qSubject.value||'').toLowerCase().trim();
-
     return data.filter(it=>{
       const okName = !nameTerm || it.name.toLowerCase().includes(nameTerm);
       const okSubjectText = !subjectTerm || it.subjectKey.includes(subjectTerm);
@@ -300,41 +390,57 @@
 
     countEl.textContent = String(sorted.length);
     const activeStr = [];
-    if(qName.value) activeStr.push(`Tên: \"${escapeHTML(qName.value)}\"`);
-    if(qSubject.value) activeStr.push(`Môn: \"${escapeHTML(qSubject.value)}\"`);
+    if(qName.value) activeStr.push(`Tên: "${escapeHTML(qName.value)}"`);
+    if(qSubject.value) activeStr.push(`Môn: "${escapeHTML(qSubject.value)}"`);
     if(selectedSubjects.size) activeStr.push(`${selectedSubjects.size} môn`);
-    activeFilters.innerHTML = activeStr.length ? `· <span class=\"muted\">Bộ lọc: ${activeStr.join(', ')}</span>` : '';
+    activeFilters.innerHTML = activeStr.length ? `· <span class="muted">Bộ lọc: ${activeStr.join(', ')}</span>` : '';
 
     resultsEl.className = 'grid';
 
     if(!sorted.length){
-      resultsEl.innerHTML = `<div class=\"state\">Không có kết quả phù hợp. Hãy thử từ khóa khác hoặc bỏ bớt bộ lọc.</div>`;
+      resultsEl.innerHTML = `<div class="state">Không có kết quả phù hợp. Hãy thử từ khóa khác hoặc bỏ bớt bộ lọc.</div>`;
       return;
     }
 
     resultsEl.innerHTML = sorted.map(it=>{
-      const price = it.price!=null ? `<span class=\"price\">${escapeHTML(formatPrice(it.price))}</span>` : `<span class=\"muted\">Liên hệ</span>`;
+      const price = it.price!=null ? `<span class="price">${escapeHTML(formatPrice(it.price))}</span>` : `<span class="muted">Liên hệ</span>`;
+      const imgBtn = (it.images && it.images.length) ? `<button class="btn view-images" type="button" data-images="${escapeHTML(it.images.join('||'))}">Xem hình ảnh</button>` : '';
+      // Phần Liên hệ: click toàn vùng sẽ auto copy (ẩn)
+      const contactHTML = formatContactHTML(it.contact);
+      const contactRaw = (it.contact||'').trim();
       return `
-        <article class=\"item\" tabindex=\"0\">
-          <div class=\"body\">
-            <div class=\"title\">${escapeHTML(it.name)}</div>
-            <div class=\"meta\">
-              <div><span class=\"label\">Môn học:</span> <span class=\"pill\">${escapeHTML(it.subject)}</span></div>
-              <div><span class=\"label\">Giá bán:</span> ${price}</div>
-              <div style=\"grid-column:1 / -1\"><span class=\"label\">Liên hệ:</span> ${formatContact(it.contact)}</div>
+        <article class="item" tabindex="0">
+          <div class="body">
+            <div class="title">${escapeHTML(it.name)}</div>
+            <div class="meta">
+              <div><span class="label">Môn học:</span> <span class="pill">${escapeHTML(it.subject)}</span></div>
+              <div><span class="label">Giá bán:</span> ${price}</div>
+              <div style="grid-column:1 / -1">
+                <span class="label">Liên hệ:</span>
+                <span class="contact-click" data-copy="${escapeHTML(contactRaw)}">${contactHTML}</span>
+              </div>
             </div>
-            ${it.note ? `<div class=\"muted\">${nl2br(escapeHTML(it.note))}</div>` : ''}
-            <div class=\"actions\">
-              <button class=\"copy\" type=\"button\" data-copy=\"${escapeHTML(it.contact)}\">Sao chép liên hệ</button>
+            ${it.note ? `<div class="muted">${nl2br(escapeHTML(it.note))}</div>` : ''}
+            <div class="actions">
+              ${imgBtn}
             </div>
           </div>
         </article>`;
     }).join('');
 
-    resultsEl.querySelectorAll('button.copy').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const v = btn.getAttribute('data-copy')||'';
-        try{ await navigator.clipboard.writeText(v); btn.textContent='Đã sao chép ✓'; setTimeout(()=>btn.textContent='Sao chép liên hệ', 1200);}catch(e){ btn.textContent='Lỗi sao chép'; btn.style.borderColor='var(--danger)'; setTimeout(()=>{btn.textContent='Sao chép liên hệ'; btn.style.borderColor='';}, 1200); }
+    // Liên kết: click để copy ẩn
+    resultsEl.querySelectorAll('.contact-click').forEach(el=>{
+      el.addEventListener('click', (e)=>{
+        const v = el.getAttribute('data-copy')||'';
+        copyTextSilently(v);
+      });
+    });
+
+    // Nút xem ảnh
+    resultsEl.querySelectorAll('.view-images').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const arr = (btn.getAttribute('data-images')||'').split('||').map(s=>s.trim()).filter(Boolean);
+        openImagesViewer(arr);
       });
     });
   }
@@ -345,6 +451,27 @@
   sortSel.addEventListener('change', render);
   clearSubjectBtn.addEventListener('click', ()=>{ selectedSubjects.clear(); qSubject.value=''; render(); });
 
+  // Submit gỡ bài qua Google Forms
+  removeForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const code = (orderCode.value||'').trim();
+    if(!code){ orderCode.focus(); return; }
+    try{
+      const url = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
+      const body = new URLSearchParams();
+      body.append(ENTRY_ID, code);
+      // Google Forms chặn CORS -> dùng no-cors, coi như gửi thành công nếu không lỗi JS
+      await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body });
+      showToast("Đã gửi yêu cầu gỡ");
+      removeHint.textContent = "Đã gửi yêu cầu. Nếu cần cập nhật nhanh, liên hệ admin.";
+      orderCode.value = "";
+    }catch(err){
+      console.error(err);
+      showToast("Gửi thất bại");
+      removeHint.textContent = "Không gửi được yêu cầu, vui lòng thử lại hoặc mở Google Form.";
+    }
+  });
+
   (function init(){
     renderSkeleton(6);
     fetch(CSV_URL).then(r=>r.text()).then(txt=>{
@@ -353,7 +480,7 @@
       RAW = body.map(mapRow).filter(r => (r.name||'').trim()!=='' || (r.subject||'').trim()!=='');
       SUBJECTS = new Set(RAW.map(r=>r.subject).filter(Boolean));
       buildChips();
-      // subject index (case-insensitive keys)
+      // subject index
       const index = {};
       RAW.forEach(it=>{
         const key = it.subjectKey || '';
@@ -365,7 +492,7 @@
       render();
     }).catch(err=>{
       console.error(err);
-      resultsEl.innerHTML = `<div class=\"state\">Không tải được dữ liệu. Vui lòng kiểm tra CSV hoặc thử lại.</div>`;
+      resultsEl.innerHTML = `<div class="state">Không tải được dữ liệu. Vui lòng kiểm tra CSV hoặc thử lại.</div>`;
       countEl.textContent = '0';
     });
   })();
