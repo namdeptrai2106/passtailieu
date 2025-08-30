@@ -3,204 +3,372 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Danh sách tài liệu</title>
+  <title>Kho tài liệu sinh viên</title>
+  <meta name="description" content="Tìm kiếm, lọc và xem tài liệu học tập do sinh viên chia sẻ.">
   <style>
-    :root {
-      --bd: #e5e7eb;
-      --muted: #6b7280;
-      --chip: #f3f4f6;
-      --hl-subject-bg: #fff7d6;
-      --hl-price-bg: #e8fff0;
+    :root{
+      --bg:#ffffff; --text:#111827; --muted:#6b7280; --bd:#e5e7eb; --chip:#f3f4f6; --primary:#2563eb;
+      --subtle:#f9fafb; --card:#ffffff; --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 24px rgba(0,0,0,.04);
+      --hl-subject:#fff7d6; --hl-price:#e8fff0; --danger:#ef4444; --success:#059669;
     }
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 24px;
-      background: #fff;
-      padding-bottom: 40px;
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: 20px;
-    }
-    .search-wrap {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: 1fr 1fr;
-      max-width: 880px;
-      margin: 12px 0 16px;
-    }
-    .search {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--bd);
-      border-radius: 10px;
-    }
-    @media (max-width: 720px) {
-      .search-wrap {
-        grid-template-columns: 1fr;
-      }
-    }
-    .cards {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    }
-    .card {
-      border: 1px solid var(--bd);
-      border-radius: 14px;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-      padding: 14px;
-      font-size: 14px;
-    }
-    .title {
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-    .row-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 12px;
-      margin-bottom: 6px;
-    }
-    .label-inline {
-      color: var(--muted);
-      white-space: nowrap;
-    }
-    .hl-subject {
-      background: var(--hl-subject-bg);
-      border-radius: 6px;
-      padding: 2px 6px;
-      font-weight: 600;
-    }
-    .hl-price {
-      background: var(--hl-price-bg);
-      border-radius: 6px;
-      padding: 2px 6px;
-      font-weight: 700;
-    }
-    .btn-view {
-      font-size: 14px;
-      color: #2563eb;
-      text-decoration: none;
-    }
-    @media (max-width: 480px) {
-      .row-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; color:var(--text); background:var(--bg); margin:0}
+
+    .container{max-width:1120px; margin:0 auto; padding:20px 16px 56px}
+
+    header{position:sticky; top:0; z-index:30; background:rgba(255,255,255,.8); backdrop-filter:saturate(180%) blur(8px); border-bottom:1px solid var(--bd)}
+    .nav{display:flex; align-items:center; gap:14px; padding:10px 16px}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px}
+    .logo{width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#60a5fa,#34d399); display:inline-grid; place-items:center; color:#fff; font-weight:900}
+    .nav-ctas{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap}
+    .btn{appearance:none; border:1px solid var(--bd); background:#fff; color:#111; padding:8px 12px; border-radius:10px; font-weight:600; text-decoration:none; transition:.15s; box-shadow:0 1px 0 rgba(0,0,0,.02)}
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+    .btn.primary{background:var(--primary); color:#fff; border-color:transparent}
+
+    .intro{display:grid; grid-template-columns:1.25fr .75fr; gap:16px; margin:18px 0 10px}
+    .intro .card{padding:16px 18px}
+    @media (max-width:920px){.intro{grid-template-columns:1fr}}
+
+    .card{background:var(--card); border:1px solid var(--bd); border-radius:16px; box-shadow:var(--shadow)}
+    .card h2{margin:0 0 8px; font-size:18px}
+    .muted{color:var(--muted)}
+
+    .controls{display:grid; grid-template-columns:2fr 2fr auto; gap:10px; align-items:center; margin:14px 0 16px}
+    .input{width:100%; padding:10px 12px; border:1px solid var(--bd); border-radius:12px; background:#fff}
+    .select{padding:10px 12px; border:1px solid var(--bd); border-radius:12px; background:#fff}
+    @media (max-width:840px){.controls{grid-template-columns:1fr 1fr;}}
+    @media (max-width:560px){.controls{grid-template-columns:1fr;}}
+
+    .chips{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 16px}
+    .chip{background:var(--chip); border:1px solid var(--bd); color:#111; padding:6px 10px; border-radius:999px; font-size:13px; cursor:pointer}
+    .chip[aria-pressed="true"], .chip.active{outline:2px solid var(--primary); outline-offset:1px}
+
+    .results-head{display:flex; align-items:center; gap:10px; margin:8px 0}
+    .results-head .count{font-weight:700}
+
+    /* SUBJECT FOLDERS */
+    #subjects{margin-top:12px}
+    .folders{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px}
+    .folder{display:flex; gap:10px; align-items:center; border:1px solid var(--bd); border-radius:12px; padding:10px 12px; background:#fff; cursor:pointer; transition:.15s}
+    .folder:hover{box-shadow:var(--shadow); transform:translateY(-1px)}
+    .folder .icon{width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:linear-gradient(135deg,#dbeafe,#d1fae5)}
+    .folder .name{font-weight:700}
+    .folder .count{margin-left:auto; color:var(--muted); font-size:13px}
+
+    .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px}
+
+    .item{background:#fff; border:1px solid var(--bd); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; padding:14px}
+    .body{display:grid; gap:8px}
+    .title{font-weight:800; line-height:1.35}
+    .meta{display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; font-size:14px}
+    .label{color:var(--muted); white-space:nowrap}
+    .pill{background:var(--hl-subject); border-radius:6px; padding:2px 6px; font-weight:700}
+    .price{background:var(--hl-price); border-radius:6px; padding:2px 6px; font-weight:800}
+    .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px}
+    .copy{border:1px dashed var(--bd); background:var(--subtle); padding:6px 10px; border-radius:10px; cursor:pointer}
+
+    .skeleton{background:linear-gradient(90deg,#f4f4f5 25%,#f1f5f9 37%,#f4f4f5 63%); background-size:400% 100%; animation:shimmer 1.2s infinite}
+    @keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+    .sk-card{border:1px solid var(--bd); border-radius:16px; overflow:hidden; padding:14px}
+    .sk-lines{display:grid; gap:10px}
+
+    .state{border:1px dashed var(--bd); border-radius:16px; padding:24px; text-align:center; background:#fff}
+
+    footer{margin-top:28px; color:var(--muted); font-size:14px}
+    .help-links{display:flex; gap:8px; flex-wrap:wrap}
   </style>
 </head>
 <body>
-  <h1>Danh sách tài liệu</h1>
-  <div class="search-wrap">
-    <input class="search" id="qName" placeholder="Tìm theo tên tài liệu..." />
-    <input class="search" id="qSubject" placeholder="Tìm theo môn học..." />
-  </div>
-  <div id="cards" class="cards" aria-live="polite"></div>
+  <header>
+    <div class="nav container">
+      <div class="brand"><span class="logo" aria-hidden>📚</span> Kho tài liệu sinh viên</div>
+      <div class="nav-ctas">
+        <a class="btn primary" href="https://forms.gle/QWLXhVD4SZ1KJAvz5" target="_blank" rel="noopener">Đăng bài bán</a>
+        <a class="btn" href="#form-go-bai">Gỡ bài</a>
+        <a class="btn" href="https://www.facebook.com/groups/969537278407183" target="_blank" rel="noopener">Group học tập</a>
+        <a class="btn" href="https://www.facebook.com/groups/httpswww.facebook.comunishotrohoctap" target="_blank" rel="noopener">Group tài liệu free</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <div class="card">
+        <h2>Giới thiệu</h2>
+        <p>Trang này giúp sinh viên <strong>tìm kiếm nhanh</strong> tài liệu học tập do cộng đồng chia sẻ. Bạn có thể lọc theo tên tài liệu, môn học, giá bán và liên hệ người bán.</p>
+        <div class="help-links" style="margin-top:8px">
+          <a class="btn" href="https://www.facebook.com/profile.php?id=61575981046841" target="_blank" rel="noopener">Liên hệ admin</a>
+          <a class="btn" href="#danh-sach">Xem danh sách ↓</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUBJECT FOLDERS SECTION -->
+    <section id="subjects" class="card" style="padding:12px 14px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+        <h2 style="margin:0">Môn học</h2>
+        <button id="clearSubject" class="btn" type="button" style="margin-left:auto">Hiển thị tất cả</button>
+      </div>
+      <div id="subjectsGrid" class="folders" aria-label="Danh sách môn học (folder)"></div>
+    </section>
+
+    <section aria-label="Bộ lọc và sắp xếp" class="card" style="padding:12px 14px; margin-top:12px">
+      <div class="controls">
+        <input id="qName" class="input" placeholder="🔎 Tìm theo tên tài liệu..." aria-label="Tìm theo tên tài liệu" />
+        <input id="qSubject" class="input" placeholder="📚 Tìm theo môn học..." aria-label="Tìm theo môn học" />
+        <select id="sort" class="select" aria-label="Sắp xếp">
+          <option value="newest">Mới nhất</option>
+          <option value="priceAsc">Giá tăng dần</option>
+          <option value="priceDesc">Giá giảm dần</option>
+          <option value="name">Theo tên (A→Z)</option>
+        </select>
+      </div>
+      <div id="chips" class="chips" aria-label="Bộ lọc nhanh theo môn học"></div>
+      <div class="results-head"><span id="count" class="count">0</span><span class="muted">kết quả</span><span id="activeFilters" class="muted"></span></div>
+    </section>
+
+    <section id="danh-sach" style="margin-top:12px">
+      <div id="results" class="grid" aria-live="polite"></div>
+    </section>
+
+    <!-- EMBEDDED REMOVE-POST FORM -->
+    <section id="form-go-bai" class="card" style="padding:12px 14px; margin-top:12px">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+        <h2 style="margin:0">Form gỡ bài</h2>
+        <a class="btn" href="https://forms.gle/yW7sUneTzoKXR8w5A" target="_blank" rel="noopener" style="margin-left:auto">Mở tab mới</a>
+      </div>
+      <div class="muted" style="margin-bottom:8px">Điền biểu mẫu dưới đây để yêu cầu gỡ bài đã đăng.</div>
+      <iframe src="https://forms.gle/yW7sUneTzoKXR8w5A" width="100%" height="740" frameborder="0" marginheight="0" marginwidth="0" loading="lazy">Đang tải…</iframe>
+      <div class="muted" style="margin-top:6px">Nếu form không hiển thị, bấm “Mở tab mới”.</div>
+    </section>
+
+    <template id="tpl-skeleton">
+      <div class="sk-card">
+        <div class="sk-lines">
+          <div class="skeleton" style="height:14px; width:70%"></div>
+          <div class="skeleton" style="height:12px; width:55%"></div>
+          <div class="skeleton" style="height:12px; width:80%"></div>
+        </div>
+      </div>
+    </template>
+  </main>
+
+  <footer class="container">
+    <div class="state muted">Nguồn dữ liệu được đồng bộ từ Google Sheets (chế độ chỉ đọc).</div>
+  </footer>
+
   <script>
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRc3aZO-fQHBdpwhXa54FgVz-RIFmd54gjszCstrNe4OHGw-LDMfdLlhhwltX4IbnWGHztC2tnp9-pR/pub?gid=0&single=true&output=csv";
-    const cards = document.getElementById("cards");
-    const qName = document.getElementById("qName");
-    const qSubject = document.getElementById("qSubject");
-    let dataRows = [];
-    fetch(CSV_URL)
-      .then(r => r.text())
-      .then(text => {
-        const rows = parseCSV(text);
-        if (!rows.length) return;
-        const body = rows.slice(1);
-        const C=2, D=3, E=4, F=5, G=6, H=7;
-        dataRows = body.map(row => ({
-          ten: getCell(row, C),
-          monHoc: getCell(row, D),
-          lienHe: getCell(row, E),
-          giaBan: getCell(row, F),
-          ghiChu: getCell(row, G),
-          hinhAnh: getCell(row, H)
-        })).filter(r => (r.ten||'').trim() !== '');
-        render(dataRows);
-      })
-      .catch(err => {
-        console.error(err);
-        cards.innerHTML = `<div class="muted">Không tải được dữ liệu CSV.</div>`;
-      });
-    function parseCSV(text){
-      const rows=[]; let row=[]; let cur=''; let inQ=false;
-      for(let i=0;i<text.length;i++){
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRL7VwTAlQldOBxOR3arotJCVv2fWLmoB3Hr6WslMdS2z_8iHM5jBnp-nK0Wvf5Ko90TLCuxgxoLihT/pub?gid=759690707&single=true&output=csv";
+  const COL = { ts:0, email:1, name:2, subject:3, contact:4, price:5, note:6 };
+
+  const $ = sel => document.querySelector(sel);
+  const resultsEl = $('#results');
+  const countEl = $('#count');
+  const chipsEl = $('#chips');
+  const qName = $('#qName');
+  const qSubject = $('#qSubject');
+  const sortSel = $('#sort');
+  const activeFilters = $('#activeFilters');
+  const subjectsGrid = $('#subjectsGrid');
+  const clearSubjectBtn = $('#clearSubject');
+
+  let RAW = [];
+  let SUBJECTS = new Set();
+  let selectedSubjects = new Set(); // used by chips search also
+
+  const getCell = (r,i) => (i>=0 && i<r.length ? r[i] : '');
+  const escapeHTML = s => (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+  const nl2br = s => (s||'').replace(/\r?\n/g,'<br>');
+  const toNumber = s => { const n = parseInt(String(s||'').replace(/[^\d]/g,''), 10); return Number.isFinite(n) ? n : NaN };
+  const formatPrice = v => Number.isFinite(v) ? v.toLocaleString('vi-VN') + ' ₫' : (v||'');
+  const debounce = (fn, ms=180) => { let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); } };
+
+  function parseCSV(text){
+    const rows=[]; let row=[]; let cur=''; let inQ=false;
+    for(let i=0;i<text.length;i++){
         const c=text[i], n=text[i+1];
-        if(inQ){
-          if(c==='"'){ if(n==='"'){cur+='"'; i++;} else inQ=false; }
-          else cur+=c;
-        }else{
-          if(c==='"') inQ=true;
-          else if(c===','){ row.push(cur); cur=''; }
-          else if(c==='\r'){}
+        if(inQ){ if(c==='"'){ if(n==='"'){cur+='"'; i++;} else inQ=false; } else cur+=c; }
+        else{
+          if(c==='"') inQ=true; else if(c===','){ row.push(cur); cur=''; }
           else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
-          else cur+=c;
+          else if(c==='\r'){} else cur+=c;
         }
-      }
-      row.push(cur); rows.push(row);
-      return rows.filter(r => r.some(cell => (cell||'').trim()!==''));
     }
-    const getCell=(r,i)=> (i>=0 && i<r.length ? r[i] : '');
-    function escapeHTML(s){return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]))}
-    function nl2br(s){return (s||'').replace(/\r?\n/g,'<br>')}
-    function extractLinks(s){ return (s||'').match(/https?:\/\/\S+/g) || [] }
-    function formatContact(s){
-      const raw=s||'';
-      const email=raw.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-      const phone=raw.match(/(\+?\d[\d\s().-]{6,}\d)/);
-      const parts=[];
-      if(email) parts.push(`<a href="mailto:${email[0]}">${escapeHTML(email[0])}</a>`);
-      if(phone) parts.push(`<a href="tel:${phone[0].replace(/[^\d+]/g,'')}">${escapeHTML(phone[0])}</a>`);
-      if(!parts.length) return escapeHTML(raw);
-      const extra=raw.replace(email?.[0]||'','').replace(phone?.[0]||'','').trim();
-      return parts.join(' · ') + (extra?` <span class="muted">${escapeHTML(extra)}</span>`:'');
-    }
-    function formatPrice(s){
-      const num=parseInt(String(s||'').replace(/[^\d]/g,''),10);
-      const out=Number.isFinite(num)? num.toLocaleString('vi-VN')+' ₫' : (s||'');
-      return `<span class="hl-price">${escapeHTML(out)}</span>`;
-    }
-    function render(rows){
-      const nameTerm=(qName.value||'').toLowerCase().trim();
-      const subjectTerm=(qSubject.value||'').toLowerCase().trim();
-      const filtered = rows.filter(r=>{
-        const okName=!nameTerm || (r.ten||'').toLowerCase().includes(nameTerm);
-        const okSubject=!subjectTerm || (r.monHoc||'').toLowerCase().includes(subjectTerm);
-        return okName && okSubject;
+    row.push(cur); rows.push(row);
+    return rows.filter(r => r.some(cell => (cell||'').trim()!==''));
+  }
+
+  function mapRow(r){
+    const rawPrice = getCell(r, COL.price);
+    const priceNum = toNumber(rawPrice);
+    return {
+      ts: new Date(getCell(r, COL.ts)),
+      email: getCell(r, COL.email),
+      name: getCell(r, COL.name).trim(),
+      subject: getCell(r, COL.subject).trim(),
+      subjectKey: (getCell(r, COL.subject)||'').trim().toLowerCase(),
+      contact: getCell(r, COL.contact),
+      priceRaw: rawPrice,
+      price: Number.isFinite(priceNum) ? priceNum : null,
+      note: getCell(r, COL.note)
+    };
+  }
+
+  function formatContact(s){
+    const raw=s||'';
+    const email=raw.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+    const phone=raw.match(/(\+?\d[\d\s().-]{6,}\d)/);
+    const parts=[];
+    if(email) parts.push(`<a href=\"mailto:${email[0]}\">${escapeHTML(email[0])}</a>`);
+    if(phone) parts.push(`<a href=\"tel:${phone[0].replace(/[^\d+]/g,'')}\">${escapeHTML(phone[0])}</a>`);
+    if(!parts.length) return escapeHTML(raw);
+    const extra=raw.replace(email?.[0]||'','').replace(phone?.[0]||'','').trim();
+    return parts.join(' · ') + (extra?` <span class=\"muted\">${escapeHTML(extra)}</span>`:'');
+  }
+
+  function renderSkeleton(n=8){
+    resultsEl.className = 'grid';
+    resultsEl.innerHTML = Array.from({length:n}).map(()=>$('#tpl-skeleton').innerHTML).join('');
+    countEl.textContent = '...';
+  }
+
+  function buildChips(){
+    chipsEl.innerHTML = '';
+    const subjects = Array.from(SUBJECTS).sort((a,b)=>a.localeCompare(b,'vi',{sensitivity:'base'}));
+    subjects.slice(0,24).forEach(sub => {
+      const btn = document.createElement('button');
+      btn.className = 'chip';
+      btn.type = 'button';
+      btn.setAttribute('aria-pressed','false');
+      btn.textContent = sub;
+      btn.addEventListener('click', ()=>{
+        const key = sub.toLowerCase();
+        selectedSubjects = new Set([key]); // chọn duy nhất 1 chip để đồng bộ với folder
+        qSubject.value = sub; // đẩy vào input để người dùng thấy
+        render();
+        document.getElementById('danh-sach').scrollIntoView({behavior:'smooth'});
       });
-      if(!filtered.length){
-        cards.innerHTML = `<div class="muted">Không có kết quả.</div>`;
-        return;
-      }
-      cards.innerHTML = filtered.map(r=>{
-        const links = extractLinks(r.hinhAnh);
-        const link = links[0] || "#";
-        return `
-          <article class="card">
-            <div class="title">${escapeHTML(r.ten)}</div>
-            <div class="row-grid">
-              <div><span class="label-inline">Môn học:</span> <span class="hl-subject">${escapeHTML(r.monHoc)}</span></div>
-              <div><span class="label-inline">Giá bán:</span> ${formatPrice(r.giaBan)}</div>
-              <div><span class="label-inline">Liên hệ:</span> ${formatContact(r.lienHe)}</div>
-              <div><a class="btn-view" href="${escapeHTML(link)}" target="_blank" rel="noopener">Xem hình ảnh &gt;</a></div>
-            </div>
-            ${r.ghiChu ? `<div class="row-grid"><div><span class="label-inline">Ghi chú:</span> ${nl2br(escapeHTML(r.ghiChu))}</div></div>`:''}
-          </article>
-        `;
-      }).join('');
+      chipsEl.appendChild(btn);
+    });
+  }
+
+  // Build SUBJECT FOLDERS (like directories)
+  function buildSubjectFolders(index){
+    subjectsGrid.innerHTML = '';
+    const entries = Object.entries(index).sort((a,b)=> a[1].name.localeCompare(b[1].name,'vi',{sensitivity:'base'}));
+    entries.forEach(([key,info])=>{
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'folder';
+      el.innerHTML = `<span class=\"icon\">📁</span><span class=\"name\">${escapeHTML(info.name)}</span><span class=\"count\">${info.count}</span>`;
+      el.addEventListener('click', ()=>{
+        selectedSubjects = new Set([key]);
+        qSubject.value = info.name; // hiển thị lại đúng chữ hoa/thường bản gốc
+        render();
+        document.getElementById('danh-sach').scrollIntoView({behavior:'smooth'});
+      });
+      subjectsGrid.appendChild(el);
+    });
+  }
+
+  function applyFilters(data){
+    const nameTerm = (qName.value||'').toLowerCase().trim();
+    const subjectTerm = (qSubject.value||'').toLowerCase().trim();
+
+    return data.filter(it=>{
+      const okName = !nameTerm || it.name.toLowerCase().includes(nameTerm);
+      const okSubjectText = !subjectTerm || it.subjectKey.includes(subjectTerm);
+      const okSubjectChip = !selectedSubjects.size || selectedSubjects.has(it.subjectKey);
+      return okName && okSubjectText && okSubjectChip;
+    });
+  }
+
+  function applySort(data){
+    const v = sortSel.value;
+    const arr = data.slice();
+    if(v==='newest') arr.sort((a,b)=>(b.ts - a.ts));
+    else if(v==='priceAsc') arr.sort((a,b)=> ( (a.price ?? Infinity) - (b.price ?? Infinity) ));
+    else if(v==='priceDesc') arr.sort((a,b)=> ( (b.price ?? -Infinity) - (a.price ?? -Infinity) ));
+    else if(v==='name') arr.sort((a,b)=> a.name.localeCompare(b.name,'vi',{sensitivity:'base'}));
+    return arr;
+  }
+
+  function render(){
+    const filtered = applyFilters(RAW);
+    const sorted = applySort(filtered);
+
+    countEl.textContent = String(sorted.length);
+    const activeStr = [];
+    if(qName.value) activeStr.push(`Tên: \"${escapeHTML(qName.value)}\"`);
+    if(qSubject.value) activeStr.push(`Môn: \"${escapeHTML(qSubject.value)}\"`);
+    if(selectedSubjects.size) activeStr.push(`${selectedSubjects.size} môn`);
+    activeFilters.innerHTML = activeStr.length ? `· <span class=\"muted\">Bộ lọc: ${activeStr.join(', ')}</span>` : '';
+
+    resultsEl.className = 'grid';
+
+    if(!sorted.length){
+      resultsEl.innerHTML = `<div class=\"state\">Không có kết quả phù hợp. Hãy thử từ khóa khác hoặc bỏ bớt bộ lọc.</div>`;
+      return;
     }
-    qName.addEventListener("input", ()=>render(dataRows));
-    qSubject.addEventListener("input", ()=>render(dataRows));
+
+    resultsEl.innerHTML = sorted.map(it=>{
+      const price = it.price!=null ? `<span class=\"price\">${escapeHTML(formatPrice(it.price))}</span>` : `<span class=\"muted\">Liên hệ</span>`;
+      return `
+        <article class=\"item\" tabindex=\"0\">
+          <div class=\"body\">
+            <div class=\"title\">${escapeHTML(it.name)}</div>
+            <div class=\"meta\">
+              <div><span class=\"label\">Môn học:</span> <span class=\"pill\">${escapeHTML(it.subject)}</span></div>
+              <div><span class=\"label\">Giá bán:</span> ${price}</div>
+              <div style=\"grid-column:1 / -1\"><span class=\"label\">Liên hệ:</span> ${formatContact(it.contact)}</div>
+            </div>
+            ${it.note ? `<div class=\"muted\">${nl2br(escapeHTML(it.note))}</div>` : ''}
+            <div class=\"actions\">
+              <button class=\"copy\" type=\"button\" data-copy=\"${escapeHTML(it.contact)}\">Sao chép liên hệ</button>
+            </div>
+          </div>
+        </article>`;
+    }).join('');
+
+    resultsEl.querySelectorAll('button.copy').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const v = btn.getAttribute('data-copy')||'';
+        try{ await navigator.clipboard.writeText(v); btn.textContent='Đã sao chép ✓'; setTimeout(()=>btn.textContent='Sao chép liên hệ', 1200);}catch(e){ btn.textContent='Lỗi sao chép'; btn.style.borderColor='var(--danger)'; setTimeout(()=>{btn.textContent='Sao chép liên hệ'; btn.style.borderColor='';}, 1200); }
+      });
+    });
+  }
+
+  const onInput = debounce(()=> render(), 200);
+  qName.addEventListener('input', onInput);
+  qSubject.addEventListener('input', onInput);
+  sortSel.addEventListener('change', render);
+  clearSubjectBtn.addEventListener('click', ()=>{ selectedSubjects.clear(); qSubject.value=''; render(); });
+
+  (function init(){
+    renderSkeleton(6);
+    fetch(CSV_URL).then(r=>r.text()).then(txt=>{
+      const rows = parseCSV(txt);
+      const body = rows.slice(1);
+      RAW = body.map(mapRow).filter(r => (r.name||'').trim()!=='' || (r.subject||'').trim()!=='');
+      SUBJECTS = new Set(RAW.map(r=>r.subject).filter(Boolean));
+      buildChips();
+      // subject index (case-insensitive keys)
+      const index = {};
+      RAW.forEach(it=>{
+        const key = it.subjectKey || '';
+        if(!key) return;
+        if(!index[key]) index[key] = { name: it.subject || '(Không rõ)', count:0 };
+        index[key].count++;
+      });
+      buildSubjectFolders(index);
+      render();
+    }).catch(err=>{
+      console.error(err);
+      resultsEl.innerHTML = `<div class=\"state\">Không tải được dữ liệu. Vui lòng kiểm tra CSV hoặc thử lại.</div>`;
+      countEl.textContent = '0';
+    });
+  })();
   </script>
 </body>
 </html>
