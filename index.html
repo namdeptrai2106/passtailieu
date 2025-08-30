@@ -26,7 +26,7 @@
     .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
     .btn.primary{background:var(--primary); color:#fff; border-color:transparent}
 
-    /* Intro: luôn 1 cột để đồng bộ chiều rộng với các card khác */
+    /* Intro 1 cột để đồng bộ độ rộng với card khác */
     .intro{display:grid; grid-template-columns:1fr; gap:16px; margin:18px 0 10px}
     .intro .card{padding:16px 18px}
 
@@ -82,15 +82,6 @@
     /* Toast */
     .toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#111; color:#fff; padding:10px 14px; border-radius:12px; font-weight:700; opacity:0; pointer-events:none; transition:.25s; z-index:1000}
     .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
-
-    /* Modal ảnh */
-    .modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:999}
-    .modal{background:#fff; width:min(920px,92vw); max-height:90vh; border-radius:14px; overflow:hidden; border:1px solid var(--bd); box-shadow:var(--shadow)}
-    .modal-header{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--bd)}
-    .modal-body{padding:10px 14px}
-    .modal img{max-width:100%; height:auto; display:block; margin:0 auto; border-radius:8px}
-    .thumbs{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
-    .thumbs img{width:90px; height:70px; object-fit:cover; border:1px solid var(--bd); border-radius:8px; cursor:pointer}
   </style>
 </head>
 <body>
@@ -146,7 +137,7 @@
       <div id="results" class="grid" aria-live="polite"></div>
     </section>
 
-    <!-- REPLACE IFRAME FORM BY INPUT -->
+    <!-- GỠ BÀI: input + submit đến Google Forms -->
     <section id="form-go-bai" class="card" style="padding:12px 14px; margin-top:12px">
       <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
         <h2 style="margin:0">Gỡ bài đã đăng</h2>
@@ -178,20 +169,6 @@
   <!-- Toast -->
   <div id="toast" class="toast" role="status" aria-live="polite">Đã sao chép</div>
 
-  <!-- Modal xem ảnh -->
-  <div id="imgBackdrop" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="Xem hình ảnh">
-      <div class="modal-header">
-        <strong>Hình ảnh tài liệu</strong>
-        <button id="imgClose" class="btn" type="button">Đóng</button>
-      </div>
-      <div class="modal-body">
-        <img id="imgMain" src="" alt="Ảnh tài liệu" />
-        <div id="imgThumbs" class="thumbs"></div>
-      </div>
-    </div>
-  </div>
-
   <script>
   const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRL7VwTAlQldOBxOR3arotJCVv2fWLmoB3Hr6WslMdS2z_8iHM5jBnp-nK0Wvf5Ko90TLCuxgxoLihT/pub?gid=759690707&single=true&output=csv";
   // Thêm cột hình ảnh (index 7)
@@ -208,12 +185,6 @@
   const subjectsGrid = $('#subjectsGrid');
   const clearSubjectBtn = $('#clearSubject');
   const toast = $('#toast');
-
-  // Modal elements
-  const imgBackdrop = $('#imgBackdrop');
-  const imgClose = $('#imgClose');
-  const imgMain = $('#imgMain');
-  const imgThumbs = $('#imgThumbs');
 
   // Remove form elements
   const removeForm = $('#removeForm');
@@ -252,6 +223,10 @@
   function parseImages(s){
     const raw = (s||'').split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
     return raw;
+  }
+
+  function isValidUrl(u){
+    try{ const x=new URL(u); return x.protocol==='http:'||x.protocol==='https:'; }catch{ return false; }
   }
 
   function mapRow(r){
@@ -293,31 +268,6 @@
     if(!text) return;
     navigator.clipboard.writeText(text).then(()=>showToast("Đã sao chép")).catch(()=>showToast("Không thể sao chép"));
   }
-
-  function openImagesViewer(urls){
-    if(!urls || !urls.length) return;
-    imgBackdrop.style.display = 'flex';
-    imgBackdrop.setAttribute('aria-hidden','false');
-    // set main
-    imgMain.src = urls[0];
-    // thumbs
-    imgThumbs.innerHTML = '';
-    urls.forEach(u=>{
-      const im = document.createElement('img');
-      im.src = u;
-      im.alt = 'thumb';
-      im.addEventListener('click', ()=>{ imgMain.src = u; });
-      imgThumbs.appendChild(im);
-    });
-  }
-  function closeImagesViewer(){
-    imgBackdrop.style.display = 'none';
-    imgBackdrop.setAttribute('aria-hidden','true');
-    imgMain.src = '';
-    imgThumbs.innerHTML = '';
-  }
-  imgClose.addEventListener('click', closeImagesViewer);
-  imgBackdrop.addEventListener('click', (e)=>{ if(e.target === imgBackdrop) closeImagesViewer(); });
 
   function renderSkeleton(n=8){
     resultsEl.className = 'grid';
@@ -404,8 +354,8 @@
 
     resultsEl.innerHTML = sorted.map(it=>{
       const price = it.price!=null ? `<span class="price">${escapeHTML(formatPrice(it.price))}</span>` : `<span class="muted">Liên hệ</span>`;
-      const imgBtn = (it.images && it.images.length) ? `<button class="btn view-images" type="button" data-images="${escapeHTML(it.images.join('||'))}">Xem hình ảnh</button>` : '';
-      // Phần Liên hệ: click toàn vùng sẽ auto copy (ẩn)
+      const firstImg = (it.images && it.images.length && isValidUrl(it.images[0])) ? it.images[0] : '';
+      const imgBtn = firstImg ? `<a class="btn" href="${escapeHTML(firstImg)}" target="_blank" rel="noopener">Xem hình ảnh</a>` : '';
       const contactHTML = formatContactHTML(it.contact);
       const contactRaw = (it.contact||'').trim();
       return `
@@ -428,19 +378,11 @@
         </article>`;
     }).join('');
 
-    // Liên kết: click để copy ẩn
+    // Click để copy liên hệ (ẩn)
     resultsEl.querySelectorAll('.contact-click').forEach(el=>{
-      el.addEventListener('click', (e)=>{
+      el.addEventListener('click', ()=>{
         const v = el.getAttribute('data-copy')||'';
         copyTextSilently(v);
-      });
-    });
-
-    // Nút xem ảnh
-    resultsEl.querySelectorAll('.view-images').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const arr = (btn.getAttribute('data-images')||'').split('||').map(s=>s.trim()).filter(Boolean);
-        openImagesViewer(arr);
       });
     });
   }
@@ -451,7 +393,7 @@
   sortSel.addEventListener('change', render);
   clearSubjectBtn.addEventListener('click', ()=>{ selectedSubjects.clear(); qSubject.value=''; render(); });
 
-  // Submit gỡ bài qua Google Forms
+  // Submit gỡ bài qua Google Forms (không yêu cầu đăng nhập)
   removeForm.addEventListener('submit', async (e)=>{
     e.preventDefault();
     const code = (orderCode.value||'').trim();
@@ -460,7 +402,6 @@
       const url = `https://docs.google.com/forms/d/e/${FORM_ID}/formResponse`;
       const body = new URLSearchParams();
       body.append(ENTRY_ID, code);
-      // Google Forms chặn CORS -> dùng no-cors, coi như gửi thành công nếu không lỗi JS
       await fetch(url, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body });
       showToast("Đã gửi yêu cầu gỡ");
       removeHint.textContent = "Đã gửi yêu cầu. Nếu cần cập nhật nhanh, liên hệ admin.";
