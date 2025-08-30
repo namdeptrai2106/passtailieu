@@ -415,29 +415,32 @@
   });
 
   (function init(){
-    renderSkeleton(6);
-    fetch(CSV_URL).then(r=>r.text()).then(txt=>{
-      const rows = parseCSV(txt);
-      const body = rows.slice(1);
-      RAW = body.map(mapRow).filter(r => (r.name||'').trim()!=='' || (r.subject||'').trim()!=='');
-      SUBJECTS = new Set(RAW.map(r=>r.subject).filter(Boolean));
-      buildChips();
-      // subject index
-      const index = {};
-      RAW.forEach(it=>{
-        const key = it.subjectKey || '';
-        if(!key) return;
-        if(!index[key]) index[key] = { name: it.subject || '(Không rõ)', count:0 };
-        index[key].count++;
-      });
-      buildSubjectFolders(index);
-      render();
-    }).catch(err=>{
-      console.error(err);
-      resultsEl.innerHTML = `<div class="state">Không tải được dữ liệu. Vui lòng kiểm tra CSV hoặc thử lại.</div>`;
-      countEl.textContent = '0';
+  renderSkeleton(6);
+  fetch(CSV_URL).then(r=>r.text()).then(txt=>{
+    const rows = parseCSV(txt);
+    const body = rows.slice(1);
+    RAW = body.map(mapRow).filter(r => (r.name||'').trim()!=='' || (r.subject||'').trim()!=='');
+    
+    // --- Sửa tại đây ---
+    const index = {};
+    RAW.forEach(it=>{
+      const key = it.subjectKey || '';
+      if(!key) return;
+      if(!index[key]) index[key] = { name: it.subject || '(Không rõ)', count:0 };
+      index[key].count++;
     });
-  })();
+    SUBJECTS = new Set(Object.values(index).map(v=>v.name));
+    buildChips();
+    buildSubjectFolders(index);
+    // -------------------
+
+    render();
+  }).catch(err=>{
+    console.error(err);
+    resultsEl.innerHTML = `<div class="state">Không tải được dữ liệu. Vui lòng kiểm tra CSV hoặc thử lại.</div>`;
+    countEl.textContent = '0';
+  });
+})();
   </script>
 </body>
 </html>
